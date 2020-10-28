@@ -13,6 +13,7 @@ namespace TestTask.Controllers
 {
     public class HomeController : Controller
     {
+        private const int MINCHARACHTER = 3;
         private readonly ILogger<HomeController> _logger;
         private readonly PersonContext _context;
         public HomeController(ILogger<HomeController> logger, PersonContext context)
@@ -41,10 +42,10 @@ namespace TestTask.Controllers
         public async Task<IActionResult> GetPeople()
         {
             var people = await _context.People.ToListAsync();
-            string[] peopleString = new string[people.Count];
+            var peopleString = new List<string>();
             foreach (var person in people)
             {
-                peopleString.Append($"{person.Name} {person.FamilyName} {person.FamilyName} ({person.IIN}) - {person.BirthDate}");
+                peopleString.Add($"{person.Name} {person.FamilyName} {person.PatreonicName} ({person.IIN}) - {person.BirthDate}");
             }
 
             return Ok(peopleString);
@@ -58,9 +59,12 @@ namespace TestTask.Controllers
                 var check = _context.People.FirstOrDefault(it => it.IIN == person.IIN);
                 if (check != null)
                     return StatusCode(200, "The person is already exists");
+                else if (person.FamilyName.Length < MINCHARACHTER || person.Name.Length < MINCHARACHTER || !Guid.TryParse(person.IIN, out Guid result))
+                    return StatusCode(400, "Please provide valuable data. Name and familyname should be longer than 3 charachters and IIN should be in correct form");
 
                 person.Id = Guid.NewGuid();
                 await _context.People.AddAsync(person);
+                await _context.SaveChangesAsync();
                 return Ok("The person has been saved");
             }
             catch

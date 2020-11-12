@@ -60,7 +60,7 @@ namespace TestTask.Controllers
                 if (check != null)
                     return StatusCode(200, "The person is already exists");
                 else if (person.FamilyName.Length < MINCHARACHTER || person.Name.Length < MINCHARACHTER || !Guid.TryParse(person.IIN, out Guid result))
-                    return StatusCode(400, "Please provide valuable data. Name and familyname should be longer than 3 charachters and IIN should be in correct form");
+                    return StatusCode(200, "Please provide valuable data. Name and familyname should be longer than 3 charachters and IIN should be in correct form");
 
                 person.Id = Guid.NewGuid();
                 await _context.People.AddAsync(person);
